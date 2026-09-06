@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary: rgb(37, 99, 235);
+    --color-primary-pressed: rgb(29, 78, 216);
+    --color-primary-soft: rgb(239, 246, 255);
+
+    --color-background: rgb(255, 255, 255);
+    --color-background-secondary: rgb(248, 250, 252);
+    --color-background-element: rgb(241, 245, 249);
+    --color-background-selected: rgb(226, 232, 240);
+
+    --color-text: rgb(15, 23, 42);
+    --color-text-secondary: rgb(100, 116, 139);
+    --color-text-tertiary: rgb(148, 163, 184);
+    --color-text-disabled: rgb(203, 213, 225);
+
+    --color-border: rgb(226, 232, 240);
+    --color-border-strong: rgb(203, 213, 225);
+
+    --color-success: rgb(22, 163, 74);
+    --color-success-soft: rgb(240, 253, 244);
+
+    --color-warning: rgb(217, 119, 6);
+    --color-warning-soft: rgb(255, 251, 235);
+
+    --color-error: rgb(220, 38, 38);
+    --color-error-soft: rgb(254, 242, 242);
+
+    --color-info: rgb(37, 99, 235);
+    --color-info-soft: rgb(239, 246, 255);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-primary: rgb(96, 165, 250);
+      --color-primary-pressed: rgb(59, 130, 246);
+      --color-primary-soft: rgb(23, 37, 84);
+
+      --color-background: rgb(9, 9, 11);
+      --color-background-secondary: rgb(24, 24, 27);
+      --color-background-element: rgb(39, 39, 42);
+      --color-background-selected: rgb(63, 63, 70);
+
+      --color-text: rgb(250, 250, 250);
+      --color-text-secondary: rgb(161, 161, 170);
+      --color-text-tertiary: rgb(113, 113, 122);
+      --color-text-disabled: rgb(82, 82, 91);
+
+      --color-border: rgb(39, 39, 42);
+      --color-border-strong: rgb(63, 63, 70);
+
+      --color-success: rgb(74, 222, 128);
+      --color-success-soft: rgb(5, 46, 22);
+
+      --color-warning: rgb(251, 191, 36);
+      --color-warning-soft: rgb(69, 26, 3);
+
+      --color-error: rgb(248, 113, 113);
+      --color-error-soft: rgb(69, 10, 10);
+
+      --color-info: rgb(96, 165, 250);
+      --color-info-soft: rgb(23, 37, 84);
+    }
+  }
+}
