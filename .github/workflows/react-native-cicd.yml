@@ -226,7 +226,7 @@ jobs:
   # ============================================================
   dev-deploygate-ios-local:
     name: Dev DeployGate - iOS
-    if: inputs.buildType == 'dev-deploygate' && inputs.platform == 'ios'
+    if: inputs.buildType == 'dev-deploygate-local' && inputs.platform == 'ios'
     environment: development
     runs-on: macos-latest
 
