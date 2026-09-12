@@ -165,10 +165,66 @@ jobs:
 
 
   # ============================================================
-  # DEV - DEPLOYGATE - IOS
+  # DEV - EAS BUILD - IOS
   # ============================================================
 
   dev-deploygate-ios:
+    name: Dev DeployGate - iOS
+    if: inputs.buildType == 'dev-deploygate' && inputs.platform == 'ios'
+    environment: development
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # --------------------------------------------------------
+      # Checkout
+      # --------------------------------------------------------
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      # --------------------------------------------------------
+      # Node
+      # --------------------------------------------------------
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: yarn
+
+      # --------------------------------------------------------
+      # Install dependencies
+      # --------------------------------------------------------
+      - name: 📦 Install dependencies
+        run: yarn install --frozen-lockfile
+
+      # --------------------------------------------------------
+      # EAS CLI
+      # --------------------------------------------------------
+      - name: 🔧 Install EAS CLI
+        run: yarn global add eas-cli@24.3.0
+
+      - name: 🔍 Check EAS CLI
+        run: eas --version
+
+      # --------------------------------------------------------
+      # Build on EAS Cloud
+      # --------------------------------------------------------
+      - name: 🏗️ Build Development iOS on EAS
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ vars.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          NODE_ENV: development
+        run: |
+          eas build \
+            --platform ios \
+            --profile development \
+            --non-interactive \
+            --wait
+
+  # ============================================================
+  # DEV - DEPLOYGATE - IOS
+  # ============================================================
+  dev-deploygate-ios-local:
     name: Dev DeployGate - iOS
     if: inputs.buildType == 'dev-deploygate' && inputs.platform == 'ios'
     environment: development
