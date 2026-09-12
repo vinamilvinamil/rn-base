@@ -1,19 +1,17 @@
+import { useAuth } from '@clerk/expo';
 import { Redirect } from 'expo-router';
 
-import { useAppSelector } from '@/store/hooks';
-
-export default function Index() {
-  const status = useAppSelector(
-    state => state.auth.status,
-  );
-
-  if (status === 'unknown') {
-    return null;
-  }
-
-  if (status === 'authenticated') {
-    return <Redirect href="/home" />;
-  }
-
-  return <Redirect href="/login" />;
+const Index = () => {
+    const {isSignedIn, isLoaded} = useAuth();
+    if(!isLoaded) {
+        return null;
+    }
+    if(isSignedIn) {
+        return <Redirect href={'/(root)/(tabs)'}/>
+    }
+  return (
+    <Redirect href={'/sign-in'}/>
+  )
 }
+
+export default Index

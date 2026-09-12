@@ -9,48 +9,22 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                primary: 'var(--color-primary)',
-                'primary-pressed': 'var(--color-primary-pressed)',
-                'primary-soft': 'var(--color-primary-soft)',
-
-                background: {
-                    DEFAULT: 'var(--color-background)',
-                    secondary: 'var(--color-background-secondary)',
-                    element: 'var(--color-background-element)',
-                    selected: 'var(--color-background-selected)',
-                },
-
-                text: {
-                    DEFAULT: 'var(--color-text)',
-                    secondary: 'var(--color-text-secondary)',
-                    tertiary: 'var(--color-text-tertiary)',
-                    disabled: 'var(--color-text-disabled)',
-                },
-
-                border: {
-                    DEFAULT: 'var(--color-border)',
-                    strong: 'var(--color-border-strong)',
-                },
-
-                success: {
-                    DEFAULT: 'var(--color-success)',
-                    soft: 'var(--color-success-soft)',
-                },
-
-                warning: {
-                    DEFAULT: 'var(--color-warning)',
-                    soft: 'var(--color-warning-soft)',
-                },
-
-                error: {
-                    DEFAULT: 'var(--color-error)',
-                    soft: 'var(--color-error-soft)',
-                },
-
-                info: {
-                    DEFAULT: 'var(--color-info)',
-                    soft: 'var(--color-info-soft)',
-                },
+                primary: '#2ECC71',
+                background: '#0F1115',
+                surface: '#1A1D23',
+                muted: '#8E939C',
+                brand: {
+                    bg: '#0B0E14',
+                    body: '#F5F4F0',
+                    surface: '#141822',
+                    "surface-border": "#232838",
+                    "text-primary": "#F2EFE9",
+                    "text-secondary": "#8A8D96",
+                    "text-muted": "#5C5F68",
+                    blue: "#1A85FF",
+                    coral: "#FF6B4A",
+                    success: "#3DDC84"
+                }
             },
         },
     },

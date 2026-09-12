@@ -1,57 +1,19 @@
-import '@/infrastructure/i18n';
-import {
-  QueryClient,
-  QueryClientProvider,
-} from '@tanstack/react-query';
-import {
-  Stack
-} from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { Provider } from 'react-redux';
+import { ClerkProvider } from '@clerk/expo';
+import { tokenCache } from '@clerk/expo/token-cache';
+import { Slot } from 'expo-router';
 import '../global.css';
 
-import { useAuthBootstrap } from '@/features/auth/presentation/hooks/useAuthBootstrap';
-import { ToastProvider } from '@/infrastructure/toast/ToastProvider';
-import { ThemeProvider } from '@/shared/components/ThemeProvider';
-import { ModalProvider } from '@/shared/modal';
-import { store } from '@/store';
-import {
-  BottomSheetModalProvider,
-} from '@gorhom/bottom-sheet';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-SplashScreen.preventAutoHideAsync();
-
-const queryClient = new QueryClient();
-
-function AppContent() {
-  useAuthBootstrap();
-
-  return (
-    <>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-        }}
-      />
-      <ToastProvider />
-    </>
-  );
+const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!
+if (!publishableKey) {
+  throw new Error('Add your Clerk Publishable Key to the .env file')
 }
 
-export default function RootLayout() {
+const RootLayout = () => {
   return (
-    <ThemeProvider>
-      <Provider store={store}>
-        <QueryClientProvider client={queryClient}>
-          <GestureHandlerRootView style={{flex: 1}}>
-            <BottomSheetModalProvider>
-                <ModalProvider>
-                  <AppContent />
-                </ModalProvider>
-            </BottomSheetModalProvider>
-          </GestureHandlerRootView>
-        </QueryClientProvider>
-      </Provider>
-    </ThemeProvider>
-  );
+    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+      <Slot />
+    </ClerkProvider>
+  )
 }
+
+export default RootLayout
