@@ -84,7 +84,7 @@ export const useSignInForm = () => {
             await signIn.finalize({
                 navigate: ({ session, decorateUrl }) => {
                     if (session?.currentTask) return;
-                    const url = decorateUrl('/');
+                    const url = decorateUrl('/(root)/(tabs)');
                     router.replace(url as any)
                 }
             })
