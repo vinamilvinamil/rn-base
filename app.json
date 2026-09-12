@@ -11,7 +11,8 @@
       "icon": "./assets/expo.icon",
       "bundleIdentifier": "com.anonymous.myapp",
       "infoPlist": {
-        "NSFaceIDUsageDescription": "Ứng dụng sử dụng Face ID để đăng nhập nhanh và an toàn."
+        "NSFaceIDUsageDescription": "Ứng dụng sử dụng Face ID để đăng nhập nhanh và an toàn.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
