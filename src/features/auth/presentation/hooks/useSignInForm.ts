@@ -2,13 +2,16 @@ import { useAuth, useSignIn } from "@clerk/expo";
 import { useLocalCredentials } from '@clerk/expo/local-credentials';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { router } from "expo-router";
-import { SignInFormValues } from "../schema/signin-schema";
+import { useState } from "react";
+import { CodeFormValues, SignInFormValues } from "../schema/signin-schema";
 
 export const useSignInForm = () => {
     const { signIn, errors, fetchStatus } = useSignIn();
     const { isSignedIn } = useAuth();
     const { hasCredentials, setCredentials, biometricType, authenticate } = useLocalCredentials();
-    console.log('xxxxx', hasCredentials, biometricType)
+    const [showVerifyUI, setShowVerifyUI] = useState(false);
+    const isSignined = signIn.status === 'complete' || isSignedIn
+
     const onSubmit = async (values: SignInFormValues) => {
         const { error } = await signIn.password({
             emailAddress: values.email,
@@ -35,6 +38,16 @@ export const useSignInForm = () => {
                     router.replace(url as any)
                 }
             })
+        } else if (signIn.status == 'needs_client_trust') {
+            const { error } = await signIn.mfa.sendEmailCode();
+
+            if (error) {
+                console.error('Prepare client trust error:', error);
+                return error.message;
+            }
+            setShowVerifyUI(true);
+            return true;
+
         } else {
             console.error("Sign in attemp not complete", signIn);
         }
@@ -65,10 +78,31 @@ export const useSignInForm = () => {
         }
     }
 
-    const isSignined = signIn.status === 'complete' || isSignedIn
+    const onVerifyPress = async ({ code }: CodeFormValues) => {
+        await signIn.mfa.verifyEmailCode({ code });
+        if (signIn.status === 'complete') {
+            await signIn.finalize({
+                navigate: ({ session, decorateUrl }) => {
+                    if (session?.currentTask) return;
+                    const url = decorateUrl('/');
+                    router.replace(url as any)
+                }
+            })
+        } else {
+            console.error("Sign up attemp not complete", signIn);
+        }
+    }
+
+    const requestNewCode = () => {
+        signIn.mfa.sendEmailCode();
+    }
+
     return {
         onSubmit,
         onLoginBiometric,
+        onVerifyPress,
+        requestNewCode,
+        showVerifyUI,
         hasCredentials,
         biometricType,
         isSignined,

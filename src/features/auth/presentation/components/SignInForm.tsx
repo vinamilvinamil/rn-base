@@ -68,6 +68,7 @@ export default function SignInForm({
                             error={fieldState.error?.message}
                             placeholder={'Email'}
                             editable={!loading}
+                            keyboardType='email-address'
                         />
                     )}
                 />
