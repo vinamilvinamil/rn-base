@@ -45,3 +45,4 @@ credentials.json
 *.keystore
 *.jks
 .env
+supabase/*

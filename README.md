@@ -2,9 +2,19 @@
 
 ## Account 
 
-```base
+```bash
 Clerk: vinamil@gmail.com - SSO
 Supbase: vinamil@gmail.com - Ny1
+```
+
+## Supbase
+
+1.Generate type database
+```bash
+npx supabase login
+npx supabase link --project-ref YOUR_PROJECT_REF
+npx supabase gen types typescript \  --linked \
+  > database.types.ts
 ```
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
