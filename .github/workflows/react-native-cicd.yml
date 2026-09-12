@@ -1,45 +1,30 @@
 name: React Native CI/CD
 
+# ============================================================
+# MANUAL BUILD ONLY
+# ============================================================
+
 on:
-  push:
-    branches:
-      - main
-      - master
-    paths-ignore:
-      - "**.md"
-      - "LICENSE"
-      - "docs/**"
-
-  pull_request:
-    branches:
-      - main
-      - master
-
   workflow_dispatch:
     inputs:
       buildType:
         type: choice
-        description: "Build type to run"
+        description: "Build type"
         required: true
-        default: "dev"
+        default: "dev-deploygate"
         options:
-          - dev
-          - prod-apk
-          - prod-aab
-          - ios-dev
-          - ios-prod
-          - publish-stores
-          - all
+          - dev-deploygate
+          - prod-deploygate
+          - prod-store
 
       platform:
         type: choice
-        description: "Build platform"
+        description: "Platform"
         required: true
         default: "android"
         options:
           - android
           - ios
-          - all
 
 
 # ============================================================
@@ -51,69 +36,31 @@ env:
 
 
 # ============================================================
-# CHECK SKIP CI
+# JOBS
 # ============================================================
 
 jobs:
 
-  check-skip:
-    name: Check CI
-    runs-on: ubuntu-latest
-
-    if: "!contains(github.event.head_commit.message, '[skip ci]')"
-
-    steps:
-      - name: 🔎 CI check
-        run: |
-          echo "Event: ${{ github.event_name }}"
-          echo "Branch: ${{ github.ref_name }}"
-          echo "Proceeding with workflow..."
-
-
   # ==========================================================
-  # DEVELOPMENT
+  # DEVELOPMENT → DEPLOYGATE
   #
-  # GitHub Environment:
-  #   development
+  # dev-deploygate + android
+  #   → Build Development APK
+  #   → Upload DeployGate
   #
-  # Used for:
-  #   - push main/master -> Android Dev APK
-  #   - workflow_dispatch -> dev / ios-dev / all
+  # dev-deploygate + ios
+  #   → Build Development IPA
+  #   → Upload DeployGate
   # ==========================================================
 
-  build-development:
-    name: Development - ${{ matrix.platform }}
+  dev-deploygate:
+    name: Dev DeployGate - ${{ inputs.platform }}
 
-    needs: check-skip
+    if: inputs.buildType == 'dev-deploygate'
 
     environment: development
 
-    if: >
-      (
-        github.event_name == 'push'
-      )
-      ||
-      (
-        github.event_name == 'workflow_dispatch' &&
-        (
-          github.event.inputs.buildType == 'dev' ||
-          github.event.inputs.buildType == 'ios-dev' ||
-          github.event.inputs.buildType == 'all'
-        )
-      )
-
-    strategy:
-      fail-fast: false
-
-      matrix:
-        include:
-          - platform: android
-            runs-on: ubuntu-latest
-
-          - platform: ios
-            runs-on: macos-latest
-
-    runs-on: ${{ matrix.runs-on }}
+    runs-on: ${{ inputs.platform == 'android' && 'ubuntu-latest' || 'macos-latest' }}
 
     steps:
 
@@ -137,14 +84,28 @@ jobs:
 
 
       # ------------------------------------------------------
+      # Gradle
+      # Android only
+      # ------------------------------------------------------
+
+      - name: ⚡ Setup Gradle
+        if: inputs.platform == 'android'
+        uses: gradle/actions/setup-gradle@v4
+
+
+      # ------------------------------------------------------
       # Install dependencies
       # ------------------------------------------------------
 
       - name: 📦 Install dependencies
         run: |
           yarn install --frozen-lockfile
-          yarn global add eas-cli@latest
+          yarn global add eas-cli@24.3.0
 
+
+      # ------------------------------------------------------
+      # Verify EAS
+      # ------------------------------------------------------
 
       - name: 🔄 Verify EAS CLI
         run: |
@@ -152,16 +113,14 @@ jobs:
           eas --version
 
 
-      # ------------------------------------------------------
-      # Android credentials
-      # ------------------------------------------------------
+      # ======================================================
+      # ANDROID CREDENTIALS
+      # ======================================================
 
       - name: 🔐 Restore Android Keystore
-        if: matrix.platform == 'android'
-
+        if: inputs.platform == 'android'
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-
         run: |
           echo "$KEYSTORE_BASE64" | base64 --decode > my-app.keystore
 
@@ -174,13 +133,11 @@ jobs:
 
 
       - name: 🔐 Create credentials.json
-        if: matrix.platform == 'android'
-
+        if: inputs.platform == 'android'
         env:
           KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-
         run: |
           cat > credentials.json <<EOF
           {
@@ -198,24 +155,16 @@ jobs:
           echo "✅ credentials.json created"
 
 
-      # ------------------------------------------------------
-      # Development Android APK
-      # ------------------------------------------------------
+      # ======================================================
+      # ANDROID DEVELOPMENT
+      # ======================================================
 
-      - name: 📱 Build Development APK
-        if: >
-          matrix.platform == 'android' &&
-          (
-            github.event_name == 'push' ||
-            github.event.inputs.buildType == 'dev' ||
-            github.event.inputs.buildType == 'all'
-          )
-
+      - name: 📱 Build Development Android APK
+        if: inputs.platform == 'android'
         env:
           NODE_ENV: development
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY }}
-
+          EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ vars.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY }}
         run: |
           echo "======================================"
           echo "Building Development Android APK"
@@ -233,24 +182,16 @@ jobs:
 
 
       # ------------------------------------------------------
-      # Upload Development APK -> DeployGate
+      # Upload Android Dev → DeployGate
       # ------------------------------------------------------
 
-      - name: 🚀 Upload Development APK to DeployGate
-        if: >
-          matrix.platform == 'android' &&
-          (
-            github.event_name == 'push' ||
-            github.event.inputs.buildType == 'dev' ||
-            github.event.inputs.buildType == 'all'
-          )
-
+      - name: 🚀 Upload Android Dev → DeployGate
+        if: inputs.platform == 'android'
         env:
           DEPLOYGATE_API_TOKEN: ${{ secrets.DEPLOYGATE_API_TOKEN }}
           DEPLOYGATE_OWNER_NAME: ${{ secrets.DEPLOYGATE_OWNER_NAME }}
-
         run: |
-          echo "Uploading Development APK to DeployGate..."
+          echo "Uploading Development Android APK to DeployGate..."
 
           curl \
             --fail-with-body \
@@ -258,33 +199,40 @@ jobs:
             --url "https://deploygate.com/api/users/${DEPLOYGATE_OWNER_NAME}/apps" \
             --header "Authorization: Bearer ${DEPLOYGATE_API_TOKEN}" \
             --form "file=@./app-dev.apk" \
-            --form-string "message=Development build ${GITHUB_SHA}" \
+            --form-string "message=Development Android ${GITHUB_SHA}" \
             --form-string "distribution_name=development" \
-            --form-string "release_note=Development build from ${GITHUB_REF_NAME}"
+            --form-string "release_note=Development Android from ${GITHUB_REF_NAME}"
 
-          echo "✅ Development APK uploaded"
+          echo "✅ Development Android APK uploaded"
 
 
       # ------------------------------------------------------
-      # Development iOS
+      # Android Artifact
       # ------------------------------------------------------
+
+      - name: 📦 Upload Android Artifact
+        if: inputs.platform == 'android'
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-dev-android-${{ github.run_number }}
+          path: ./app-dev.apk
+          if-no-files-found: error
+          retention-days: 7
+
+
+      # ======================================================
+      # IOS DEVELOPMENT
+      # ======================================================
 
       - name: 🍎 Build Development iOS
-        if: >
-          matrix.platform == 'ios' &&
-          (
-            github.event.inputs.buildType == 'ios-dev' ||
-            github.event.inputs.buildType == 'all'
-          )
-
+        if: inputs.platform == 'ios'
         env:
           NODE_ENV: development
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ vars.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY }}
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
           EXPO_APPLE_PASSWORD: ${{ secrets.EXPO_APPLE_PASSWORD }}
           EXPO_TEAM_ID: ${{ secrets.EXPO_TEAM_ID }}
-
         run: |
           echo "======================================"
           echo "Building Development iOS"
@@ -302,69 +250,64 @@ jobs:
 
 
       # ------------------------------------------------------
-      # Development artifacts
+      # Upload iOS Dev → DeployGate
       # ------------------------------------------------------
 
-      - name: 📦 Upload Development Artifacts
+      - name: 🚀 Upload iOS Dev → DeployGate
+        if: inputs.platform == 'ios'
+        env:
+          DEPLOYGATE_API_TOKEN: ${{ secrets.DEPLOYGATE_API_TOKEN }}
+          DEPLOYGATE_OWNER_NAME: ${{ secrets.DEPLOYGATE_OWNER_NAME }}
+        run: |
+          echo "Uploading Development iOS IPA to DeployGate..."
+
+          curl \
+            --fail-with-body \
+            --request POST \
+            --url "https://deploygate.com/api/users/${DEPLOYGATE_OWNER_NAME}/apps" \
+            --header "Authorization: Bearer ${DEPLOYGATE_API_TOKEN}" \
+            --form "file=@./app-ios-dev.ipa" \
+            --form-string "message=Development iOS ${GITHUB_SHA}" \
+            --form-string "distribution_name=development" \
+            --form-string "release_note=Development iOS from ${GITHUB_REF_NAME}"
+
+          echo "✅ Development iOS IPA uploaded"
+
+
+      # ------------------------------------------------------
+      # iOS Artifact
+      # ------------------------------------------------------
+
+      - name: 📦 Upload iOS Artifact
+        if: inputs.platform == 'ios'
         uses: actions/upload-artifact@v4
-
         with:
-          name: development-${{ matrix.platform }}-${{ github.run_number }}
-
-          path: |
-            ./app-dev.apk
-            ./app-ios-dev.ipa
-
-          if-no-files-found: ignore
+          name: app-dev-ios-${{ github.run_number }}
+          path: ./app-ios-dev.ipa
+          if-no-files-found: error
           retention-days: 7
 
 
   # ==========================================================
-  # PRODUCTION
+  # PRODUCTION → DEPLOYGATE
   #
-  # GitHub Environment:
-  #   production
+  # prod-deploygate + android
+  #   → Build Production APK
+  #   → Upload DeployGate
   #
-  # Used for:
-  #   - prod-apk
-  #   - prod-aab
-  #   - ios-prod
-  #   - publish-stores
-  #   - all
-  #
-  # IMPORTANT:
-  # Production is NOT triggered automatically by push.
+  # prod-deploygate + ios
+  #   → Build Production IPA
+  #   → Upload DeployGate
   # ==========================================================
 
-  build-production:
-    name: Production - ${{ matrix.platform }}
+  prod-deploygate:
+    name: Prod DeployGate - ${{ inputs.platform }}
 
-    needs: check-skip
+    if: inputs.buildType == 'prod-deploygate'
 
     environment: production
 
-    if: >
-      github.event_name == 'workflow_dispatch' &&
-      (
-        github.event.inputs.buildType == 'prod-apk' ||
-        github.event.inputs.buildType == 'prod-aab' ||
-        github.event.inputs.buildType == 'ios-prod' ||
-        github.event.inputs.buildType == 'publish-stores' ||
-        github.event.inputs.buildType == 'all'
-      )
-
-    strategy:
-      fail-fast: false
-
-      matrix:
-        include:
-          - platform: android
-            runs-on: ubuntu-latest
-
-          - platform: ios
-            runs-on: macos-latest
-
-    runs-on: ${{ matrix.runs-on }}
+    runs-on: ${{ inputs.platform == 'android' && 'ubuntu-latest' || 'macos-latest' }}
 
     steps:
 
@@ -383,8 +326,17 @@ jobs:
       - name: 🏗 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: "yarn"
+
+
+      # ------------------------------------------------------
+      # Gradle
+      # ------------------------------------------------------
+
+      - name: ⚡ Setup Gradle
+        if: inputs.platform == 'android'
+        uses: gradle/actions/setup-gradle@v4
 
 
       # ------------------------------------------------------
@@ -394,8 +346,12 @@ jobs:
       - name: 📦 Install dependencies
         run: |
           yarn install --frozen-lockfile
-          yarn global add eas-cli@latest
+          yarn global add eas-cli@24.3.0
 
+
+      # ------------------------------------------------------
+      # Verify EAS
+      # ------------------------------------------------------
 
       - name: 🔄 Verify EAS CLI
         run: |
@@ -403,16 +359,14 @@ jobs:
           eas --version
 
 
-      # ------------------------------------------------------
-      # Android credentials
-      # ------------------------------------------------------
+      # ======================================================
+      # ANDROID CREDENTIALS
+      # ======================================================
 
       - name: 🔐 Restore Android Keystore
-        if: matrix.platform == 'android'
-
+        if: inputs.platform == 'android'
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-
         run: |
           echo "$KEYSTORE_BASE64" | base64 --decode > my-app.keystore
 
@@ -425,13 +379,11 @@ jobs:
 
 
       - name: 🔐 Create credentials.json
-        if: matrix.platform == 'android'
-
+        if: inputs.platform == 'android'
         env:
           KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-
         run: |
           cat > credentials.json <<EOF
           {
@@ -449,23 +401,16 @@ jobs:
           echo "✅ credentials.json created"
 
 
-      # ------------------------------------------------------
-      # Production Android APK
-      # ------------------------------------------------------
+      # ======================================================
+      # ANDROID PRODUCTION APK
+      # ======================================================
 
-      - name: 📱 Build Production APK
-        if: >
-          matrix.platform == 'android' &&
-          (
-            github.event.inputs.buildType == 'prod-apk' ||
-            github.event.inputs.buildType == 'all'
-          )
-
+      - name: 📱 Build Production Android APK
+        if: inputs.platform == 'android'
         env:
           NODE_ENV: production
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY }}
-
+          EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ vars.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY }}
         run: |
           echo "======================================"
           echo "Building Production Android APK"
@@ -483,23 +428,16 @@ jobs:
 
 
       # ------------------------------------------------------
-      # Upload Production APK -> DeployGate
+      # Upload Android Prod → DeployGate
       # ------------------------------------------------------
 
-      - name: 🚀 Upload Production APK to DeployGate
-        if: >
-          matrix.platform == 'android' &&
-          (
-            github.event.inputs.buildType == 'prod-apk' ||
-            github.event.inputs.buildType == 'all'
-          )
-
+      - name: 🚀 Upload Android Prod → DeployGate
+        if: inputs.platform == 'android'
         env:
           DEPLOYGATE_API_TOKEN: ${{ secrets.DEPLOYGATE_API_TOKEN }}
           DEPLOYGATE_OWNER_NAME: ${{ secrets.DEPLOYGATE_OWNER_NAME }}
-
         run: |
-          echo "Uploading Production APK to DeployGate..."
+          echo "Uploading Production Android APK to DeployGate..."
 
           curl \
             --fail-with-body \
@@ -507,72 +445,40 @@ jobs:
             --url "https://deploygate.com/api/users/${DEPLOYGATE_OWNER_NAME}/apps" \
             --header "Authorization: Bearer ${DEPLOYGATE_API_TOKEN}" \
             --form "file=@./app-prod.apk" \
-            --form-string "message=Production APK ${GITHUB_SHA}" \
+            --form-string "message=Production Android ${GITHUB_SHA}" \
             --form-string "distribution_name=production" \
-            --form-string "release_note=Production APK from ${GITHUB_REF_NAME}"
+            --form-string "release_note=Production Android from ${GITHUB_REF_NAME}"
 
-          echo "✅ Production APK uploaded"
-
-
-      # ------------------------------------------------------
-      # Production Android AAB
-      #
-      # Also required by publish-stores
-      # ------------------------------------------------------
-
-      - name: 📱 Build Production AAB
-        if: >
-          matrix.platform == 'android' &&
-          (
-            github.event.inputs.buildType == 'prod-aab' ||
-            github.event.inputs.buildType == 'publish-stores' ||
-            github.event.inputs.buildType == 'all'
-          )
-
-        env:
-          NODE_ENV: production
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY }}
-
-        run: |
-          echo "======================================"
-          echo "Building Production Android AAB"
-          echo "Environment: production"
-          echo "======================================"
-
-          export NODE_OPTIONS="--openssl-legacy-provider --max_old_space_size=4096"
-
-          eas build \
-            --platform android \
-            --profile production \
-            --local \
-            --non-interactive \
-            --output=./app-prod.aab
+          echo "✅ Production Android APK uploaded"
 
 
       # ------------------------------------------------------
-      # Production iOS
-      #
-      # Also required by publish-stores
+      # Android Artifact
       # ------------------------------------------------------
+
+      - name: 📦 Upload Android Artifact
+        if: inputs.platform == 'android'
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-prod-android-${{ github.run_number }}
+          path: ./app-prod.apk
+          if-no-files-found: error
+          retention-days: 7
+
+
+      # ======================================================
+      # IOS PRODUCTION
+      # ======================================================
 
       - name: 🍎 Build Production iOS
-        if: >
-          matrix.platform == 'ios' &&
-          (
-            github.event.inputs.buildType == 'ios-prod' ||
-            github.event.inputs.buildType == 'publish-stores' ||
-            github.event.inputs.buildType == 'all'
-          )
-
+        if: inputs.platform == 'ios'
         env:
           NODE_ENV: production
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ vars.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY }}
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
           EXPO_APPLE_PASSWORD: ${{ secrets.EXPO_APPLE_PASSWORD }}
           EXPO_TEAM_ID: ${{ secrets.EXPO_TEAM_ID }}
-
         run: |
           echo "======================================"
           echo "Building Production iOS"
@@ -590,23 +496,16 @@ jobs:
 
 
       # ------------------------------------------------------
-      # Upload Production iOS -> DeployGate
+      # Upload iOS Prod → DeployGate
       # ------------------------------------------------------
 
-      - name: 🚀 Upload Production iOS to DeployGate
-        if: >
-          matrix.platform == 'ios' &&
-          (
-            github.event.inputs.buildType == 'ios-prod' ||
-            github.event.inputs.buildType == 'all'
-          )
-
+      - name: 🚀 Upload iOS Prod → DeployGate
+        if: inputs.platform == 'ios'
         env:
           DEPLOYGATE_API_TOKEN: ${{ secrets.DEPLOYGATE_API_TOKEN }}
           DEPLOYGATE_OWNER_NAME: ${{ secrets.DEPLOYGATE_OWNER_NAME }}
-
         run: |
-          echo "Uploading Production iOS to DeployGate..."
+          echo "Uploading Production iOS IPA to DeployGate..."
 
           curl \
             --fail-with-body \
@@ -614,29 +513,189 @@ jobs:
             --url "https://deploygate.com/api/users/${DEPLOYGATE_OWNER_NAME}/apps" \
             --header "Authorization: Bearer ${DEPLOYGATE_API_TOKEN}" \
             --form "file=@./app-ios-prod.ipa" \
-            --form-string "message=iOS Production ${GITHUB_SHA}" \
-            --form-string "distribution_name=ios-production" \
-            --form-string "release_note=iOS Production from ${GITHUB_REF_NAME}"
+            --form-string "message=Production iOS ${GITHUB_SHA}" \
+            --form-string "distribution_name=production" \
+            --form-string "release_note=Production iOS from ${GITHUB_REF_NAME}"
 
-          echo "✅ Production iOS uploaded"
+          echo "✅ Production iOS IPA uploaded"
 
 
       # ------------------------------------------------------
-      # Google Play Store
+      # iOS Artifact
+      # ------------------------------------------------------
+
+      - name: 📦 Upload iOS Artifact
+        if: inputs.platform == 'ios'
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-prod-ios-${{ github.run_number }}
+          path: ./app-ios-prod.ipa
+          if-no-files-found: error
+          retention-days: 7
+
+
+  # ==========================================================
+  # PRODUCTION → STORE
+  #
+  # prod-store + android
+  #   → Build AAB
+  #   → Submit Google Play
+  #
+  # prod-store + ios
+  #   → Build IPA
+  #   → Submit App Store
+  # ==========================================================
+
+  prod-store:
+    name: Prod Store - ${{ inputs.platform }}
+
+    if: inputs.buildType == 'prod-store'
+
+    environment: production
+
+    runs-on: ${{ inputs.platform == 'android' && 'ubuntu-latest' || 'macos-latest' }}
+
+    steps:
+
+      # ------------------------------------------------------
+      # Checkout
+      # ------------------------------------------------------
+
+      - name: 🏗 Checkout repository
+        uses: actions/checkout@v4
+
+
+      # ------------------------------------------------------
+      # Node
+      # ------------------------------------------------------
+
+      - name: 🏗 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "yarn"
+
+
+      # ------------------------------------------------------
+      # Gradle
+      # ------------------------------------------------------
+
+      - name: ⚡ Setup Gradle
+        if: inputs.platform == 'android'
+        uses: gradle/actions/setup-gradle@v4
+
+
+      # ------------------------------------------------------
+      # Install dependencies
+      # ------------------------------------------------------
+
+      - name: 📦 Install dependencies
+        run: |
+          yarn install --frozen-lockfile
+          yarn global add eas-cli@24.3.0
+
+
+      # ------------------------------------------------------
+      # Verify EAS
+      # ------------------------------------------------------
+
+      - name: 🔄 Verify EAS CLI
+        run: |
+          echo "EAS CLI version:"
+          eas --version
+
+
+      # ======================================================
+      # ANDROID CREDENTIALS
+      # ======================================================
+
+      - name: 🔐 Restore Android Keystore
+        if: inputs.platform == 'android'
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 --decode > my-app.keystore
+
+          if [ ! -s my-app.keystore ]; then
+            echo "❌ Android keystore is missing or empty"
+            exit 1
+          fi
+
+          echo "✅ Android keystore restored"
+
+
+      - name: 🔐 Create credentials.json
+        if: inputs.platform == 'android'
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          cat > credentials.json <<EOF
+          {
+            "android": {
+              "keystore": {
+                "keystorePath": "./my-app.keystore",
+                "keystorePassword": "$KEYSTORE_PASSWORD",
+                "keyAlias": "$KEY_ALIAS",
+                "keyPassword": "$KEY_PASSWORD"
+              }
+            }
+          }
+          EOF
+
+          echo "✅ credentials.json created"
+
+
+      # ======================================================
+      # ANDROID → GOOGLE PLAY
+      # ======================================================
+
+      - name: 📱 Build Production Android AAB
+        if: inputs.platform == 'android'
+        env:
+          NODE_ENV: production
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ vars.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+        run: |
+          echo "======================================"
+          echo "Building Production Android AAB"
+          echo "Environment: production"
+          echo "======================================"
+
+          export NODE_OPTIONS="--openssl-legacy-provider --max_old_space_size=4096"
+
+          eas build \
+            --platform android \
+            --profile production \
+            --local \
+            --non-interactive \
+            --output=./app-prod.aab
+
+
+      # ------------------------------------------------------
+      # Upload Android Store Artifact
+      # ------------------------------------------------------
+
+      - name: 📦 Upload Android AAB Artifact
+        if: inputs.platform == 'android'
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-prod-store-android-${{ github.run_number }}
+          path: ./app-prod.aab
+          if-no-files-found: error
+          retention-days: 7
+
+
+      # ------------------------------------------------------
+      # Google Play
       # ------------------------------------------------------
 
       - name: 🚀 Submit to Google Play Store
-        if: >
-          matrix.platform == 'android' &&
-          (
-            github.event.inputs.buildType == 'publish-stores' ||
-            github.event.inputs.buildType == 'all'
-          )
-
+        if: inputs.platform == 'android'
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           GOOGLE_PLAY_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
-
         run: |
           echo "Submitting AAB to Google Play..."
 
@@ -648,24 +707,60 @@ jobs:
           echo "✅ Google Play submission completed"
 
 
+      # ======================================================
+      # IOS → APP STORE
+      # ======================================================
+
+      - name: 🍎 Build Production iOS
+        if: inputs.platform == 'ios'
+        env:
+          NODE_ENV: production
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ vars.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
+          EXPO_APPLE_PASSWORD: ${{ secrets.EXPO_APPLE_PASSWORD }}
+          EXPO_TEAM_ID: ${{ secrets.EXPO_TEAM_ID }}
+        run: |
+          echo "======================================"
+          echo "Building Production iOS"
+          echo "Environment: production"
+          echo "======================================"
+
+          export NODE_OPTIONS="--openssl-legacy-provider --max_old_space_size=4096"
+
+          eas build \
+            --platform ios \
+            --profile production \
+            --local \
+            --non-interactive \
+            --output=./app-ios-prod.ipa
+
+
+      # ------------------------------------------------------
+      # Upload iOS Store Artifact
+      # ------------------------------------------------------
+
+      - name: 📦 Upload iOS IPA Artifact
+        if: inputs.platform == 'ios'
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-prod-store-ios-${{ github.run_number }}
+          path: ./app-ios-prod.ipa
+          if-no-files-found: error
+          retention-days: 7
+
+
       # ------------------------------------------------------
       # Apple App Store
       # ------------------------------------------------------
 
       - name: 🚀 Submit to Apple App Store
-        if: >
-          matrix.platform == 'ios' &&
-          (
-            github.event.inputs.buildType == 'publish-stores' ||
-            github.event.inputs.buildType == 'all'
-          )
-
+        if: inputs.platform == 'ios'
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
           EXPO_APPLE_PASSWORD: ${{ secrets.EXPO_APPLE_PASSWORD }}
           EXPO_TEAM_ID: ${{ secrets.EXPO_TEAM_ID }}
-
         run: |
           echo "Submitting IPA to App Store..."
 
@@ -675,22 +770,3 @@ jobs:
             --non-interactive
 
           echo "✅ App Store submission completed"
-
-
-      # ------------------------------------------------------
-      # Production artifacts
-      # ------------------------------------------------------
-
-      - name: 📦 Upload Production Artifacts
-        uses: actions/upload-artifact@v4
-
-        with:
-          name: production-${{ matrix.platform }}-${{ github.run_number }}
-
-          path: |
-            ./app-prod.apk
-            ./app-prod.aab
-            ./app-ios-prod.ipa
-
-          if-no-files-found: ignore
-          retention-days: 7
