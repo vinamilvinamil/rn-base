@@ -204,6 +204,22 @@ jobs:
       - name: 🔍 Check EAS CLI
         run: eas --version
 
+      - name: 🔐 Create iOS credentials.json
+        env:
+          IOS_CERT_PASSWORD: ${{ secrets.IOS_CERT_PASSWORD }}
+        run: |
+          cat > credentials.json <<EOF
+          {
+            "ios": {
+              "provisioningProfilePath": "./my-app.mobileprovision",
+              "distributionCertificate": {
+                "path": "./my-app.p12",
+                "password": "${IOS_CERT_PASSWORD}"
+              }
+            }
+          }
+          EOF
+
       # --------------------------------------------------------
       # Build iOS IPA
       # --------------------------------------------------------
@@ -423,6 +439,22 @@ jobs:
       - name: 🔍 Check EAS CLI
         run: eas --version
 
+      - name: 🔐 Create iOS credentials.json
+        env:
+          IOS_CERT_PASSWORD: ${{ secrets.IOS_CERT_PASSWORD }}
+        run: |
+          cat > credentials.json <<EOF
+          {
+            "ios": {
+              "provisioningProfilePath": "./my-app.mobileprovision",
+              "distributionCertificate": {
+                "path": "./my-app.p12",
+                "password": "${IOS_CERT_PASSWORD}"
+              }
+            }
+          }
+          EOF
+
       # --------------------------------------------------------
       # Build Production IPA
       # --------------------------------------------------------
@@ -633,6 +665,22 @@ jobs:
 
       - name: 🔍 Check EAS CLI
         run: eas --version
+
+      - name: 🔐 Create iOS credentials.json
+        env:
+          IOS_CERT_PASSWORD: ${{ secrets.IOS_CERT_PASSWORD }}
+        run: |
+          cat > credentials.json <<EOF
+          {
+            "ios": {
+              "provisioningProfilePath": "./my-app.mobileprovision",
+              "distributionCertificate": {
+                "path": "./my-app.p12",
+                "password": "${IOS_CERT_PASSWORD}"
+              }
+            }
+          }
+          EOF
 
       # --------------------------------------------------------
       # Build Production IPA
