@@ -12,11 +12,7 @@ export const onboardingSchema = z.object({
         code: z.string(),
         name: z.string(),
         symbol: z.string()
-    })
-    .nullable()
-    .refine(value => value, {
-        message: "Please choose currency"
-    })
+    }, "Please choose currency")
 });
 
 export type OnboardingFormValues = z.infer<typeof onboardingSchema>;

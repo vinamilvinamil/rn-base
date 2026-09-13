@@ -30,7 +30,7 @@ export default function OnboardingForm({
         {
             resolver: zodResolver(onboardingSchema),
             mode: 'onBlur',
-            defaultValues: { startingBalance: '', currency: null}
+            defaultValues: { startingBalance: ''}
         }
     )
     return (

@@ -21,7 +21,7 @@ export const useOnboardingForm = () => {
         const {error: updateError} = await authSupabase
         .from('users')
         .update({
-            currency: values.currency?.code
+            currency: values.currency.code
         })
         .eq("clerk_id", user!.id)
         if(updateError) {
@@ -68,7 +68,7 @@ export const useOnboardingForm = () => {
             setError("Something went wrong");
             return;
         }
-        setCurrency(values.currency!.code);
+        setCurrency(values.currency.code);
         setNeedsOnBoarding(false);
         router.replace("/(root)/(tabs)")
     }
