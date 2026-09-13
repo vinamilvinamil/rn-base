@@ -76,6 +76,19 @@ jobs:
         run: eas --version
 
       # --------------------------------------------------------
+      # Create Expo .env from GitHub Environment Variables
+      # --------------------------------------------------------
+      - name: 🌱 Create .env
+        run: |
+          printenv \
+            | grep -E '^(APP_ENV|EXPO_PUBLIC_)' \
+            | sort \
+            > .env
+
+          echo "Generated Expo environment variables:"
+          cut -d '=' -f1 .env
+
+      # --------------------------------------------------------
       # Restore Android Keystore
       # --------------------------------------------------------
       - name: 🔐 Restore Android Keystore
@@ -112,9 +125,7 @@ jobs:
       # --------------------------------------------------------
       - name: 🏗️ Build Development Android APK
         env:
-          NODE_ENV: development
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ vars.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY }}
         run: |
           export NODE_OPTIONS="--openssl-legacy-provider --max_old_space_size=4096"
 
@@ -207,13 +218,24 @@ jobs:
         run: eas --version
 
       # --------------------------------------------------------
+      # Create Expo .env from GitHub Environment Variables
+      # --------------------------------------------------------
+      - name: 🌱 Create .env
+        run: |
+          printenv \
+            | grep -E '^(APP_ENV|EXPO_PUBLIC_)' \
+            | sort \
+            > .env
+
+          echo "Generated Expo environment variables:"
+          cut -d '=' -f1 .env
+
+      # --------------------------------------------------------
       # Build on EAS Cloud
       # --------------------------------------------------------
       - name: 🏗️ Build Development iOS on EAS
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ vars.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY }}
-          NODE_ENV: development
         run: |
           eas build \
             --platform ios \
@@ -277,13 +299,24 @@ jobs:
           EOF
 
       # --------------------------------------------------------
+      # Create Expo .env from GitHub Environment Variables
+      # --------------------------------------------------------
+      - name: 🌱 Create .env
+        run: |
+          printenv \
+            | grep -E '^(APP_ENV|EXPO_PUBLIC_)' \
+            | sort \
+            > .env
+
+          echo "Generated Expo environment variables:"
+          cut -d '=' -f1 .env
+
+      # --------------------------------------------------------
       # Build iOS IPA
       # --------------------------------------------------------
       - name: 🏗️ Build Development iOS IPA
         env:
-          NODE_ENV: development
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ vars.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY }}
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
           EXPO_APPLE_PASSWORD: ${{ secrets.EXPO_APPLE_PASSWORD }}
           EXPO_TEAM_ID: ${{ secrets.EXPO_TEAM_ID }}
@@ -370,6 +403,19 @@ jobs:
         run: eas --version
 
       # --------------------------------------------------------
+      # Create Expo .env from GitHub Environment Variables
+      # --------------------------------------------------------
+      - name: 🌱 Create .env
+        run: |
+          printenv \
+            | grep -E '^(APP_ENV|EXPO_PUBLIC_)' \
+            | sort \
+            > .env
+
+          echo "Generated Expo environment variables:"
+          cut -d '=' -f1 .env
+
+      # --------------------------------------------------------
       # Restore Android Keystore
       # --------------------------------------------------------
       - name: 🔐 Restore Android Keystore
@@ -406,9 +452,7 @@ jobs:
       # --------------------------------------------------------
       - name: 🏗️ Build Production Android APK
         env:
-          NODE_ENV: production
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ vars.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY }}
         run: |
           export NODE_OPTIONS="--openssl-legacy-provider --max_old_space_size=4096"
 
@@ -512,13 +556,24 @@ jobs:
           EOF
 
       # --------------------------------------------------------
+      # Create Expo .env from GitHub Environment Variables
+      # --------------------------------------------------------
+      - name: 🌱 Create .env
+        run: |
+          printenv \
+            | grep -E '^(APP_ENV|EXPO_PUBLIC_)' \
+            | sort \
+            > .env
+
+          echo "Generated Expo environment variables:"
+          cut -d '=' -f1 .env
+
+      # --------------------------------------------------------
       # Build Production IPA
       # --------------------------------------------------------
       - name: 🏗️ Build Production iOS IPA
         env:
-          NODE_ENV: production
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ vars.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY }}
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
           EXPO_APPLE_PASSWORD: ${{ secrets.EXPO_APPLE_PASSWORD }}
           EXPO_TEAM_ID: ${{ secrets.EXPO_TEAM_ID }}
@@ -602,6 +657,19 @@ jobs:
         run: eas --version
 
       # --------------------------------------------------------
+      # Create Expo .env from GitHub Environment Variables
+      # --------------------------------------------------------
+      - name: 🌱 Create .env
+        run: |
+          printenv \
+            | grep -E '^(APP_ENV|EXPO_PUBLIC_)' \
+            | sort \
+            > .env
+
+          echo "Generated Expo environment variables:"
+          cut -d '=' -f1 .env
+
+      # --------------------------------------------------------
       # Restore Android Keystore
       # --------------------------------------------------------
       - name: 🔐 Restore Android Keystore
@@ -638,9 +706,7 @@ jobs:
       # --------------------------------------------------------
       - name: 🏗️ Build Production Android AAB
         env:
-          NODE_ENV: production
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ vars.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY }}
         run: |
           export NODE_OPTIONS="--openssl-legacy-provider --max_old_space_size=4096"
 
@@ -739,13 +805,24 @@ jobs:
           EOF
 
       # --------------------------------------------------------
+      # Create Expo .env from GitHub Environment Variables
+      # --------------------------------------------------------
+      - name: 🌱 Create .env
+        run: |
+          printenv \
+            | grep -E '^(APP_ENV|EXPO_PUBLIC_)' \
+            | sort \
+            > .env
+
+          echo "Generated Expo environment variables:"
+          cut -d '=' -f1 .env
+
+      # --------------------------------------------------------
       # Build Production IPA
       # --------------------------------------------------------
       - name: 🏗️ Build Production iOS IPA
         env:
-          NODE_ENV: production
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ vars.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY }}
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
           EXPO_APPLE_PASSWORD: ${{ secrets.EXPO_APPLE_PASSWORD }}
           EXPO_TEAM_ID: ${{ secrets.EXPO_TEAM_ID }}
