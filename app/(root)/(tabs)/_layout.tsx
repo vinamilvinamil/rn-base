@@ -2,10 +2,12 @@ import { Feather } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
 import { Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const useNativeTas = Platform.OS === 'ios';
 
 export default function TabLayout() {
+    const {bottom} = useSafeAreaInsets();
     if (useNativeTas) {
         return (
             <NativeTabs
@@ -47,7 +49,9 @@ export default function TabLayout() {
                     backgroundColor: '#FFFFFF',
                     borderTopColor: '#E8E6DF',
                     paddingTop: 4,
-                    height: 64
+                    height: 64,
+                    marginBottom: bottom,
+                    elevation: 0
                 }
             }}
         >

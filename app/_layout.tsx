@@ -1,3 +1,4 @@
+import { QueryProvider } from '@/infrastructure/query/query-provider';
 import { ClerkProvider } from '@clerk/expo';
 import { tokenCache } from '@clerk/expo/token-cache';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
@@ -12,13 +13,15 @@ if (!publishableKey) {
 
 const RootLayout = () => {
   return (
-    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <BottomSheetModalProvider>
-          <Slot />
-        </BottomSheetModalProvider>
-      </GestureHandlerRootView>
-    </ClerkProvider>
+    <QueryProvider>
+      <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <BottomSheetModalProvider>
+            <Slot />
+          </BottomSheetModalProvider>
+        </GestureHandlerRootView>
+      </ClerkProvider>
+    </QueryProvider>
   )
 }
 

@@ -1,11 +1,12 @@
 import { Button } from '@/shared/components/Button';
 import { Checkbox } from '@/shared/components/Checkbox';
 import { Input } from '@/shared/components/Input';
+import { KeyboardAvoidingView } from '@/shared/components/KeyboardAvoidingView';
 import images from '@/shared/constants/images';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
-import { Image, KeyboardAvoidingView, Platform, Text, View } from 'react-native';
+import { Image, Text, View } from 'react-native';
 import { SignInFormValues, signInSchema } from '../schema/signin-schema';
 
 export interface SignInFormProps {
@@ -42,8 +43,7 @@ export default function SignInForm({
     });
     return (
         <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            className='flex-1 bg-brand-body'
+            style={{flex: 1}}
         >
             <View className='flex-1 justify-center px-6 -mt-16'>
                 <Image

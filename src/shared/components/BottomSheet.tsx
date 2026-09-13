@@ -19,14 +19,16 @@ export interface BottomSheetRef {
 interface BottomSheetProps {
     title?: string;
     children: React.ReactNode;
+    backgroundColor?: string;
     supportScroll?: boolean; // dungf cho scroll  view inside
+    enablePanDownToClose?: boolean;
     snapPoints?: string[];
 }
 
 export const BottomSheet = forwardRef<
     BottomSheetRef,
     BottomSheetProps
->(({ title, children, snapPoints = ['50%'], supportScroll = false }, ref) => {
+>(({ title, children, snapPoints, backgroundColor = '#FFF', supportScroll = false, enablePanDownToClose = true }, ref) => {
     const bottomSheetRef = React.useRef<BottomSheetModal>(null);
 
     React.useImperativeHandle(ref, () => ({
@@ -56,9 +58,9 @@ export const BottomSheet = forwardRef<
             ref={bottomSheetRef}
             snapPoints={snapPoints}
             backdropComponent={renderBackdrop}
-            enablePanDownToClose
-            enableDynamicSizing={false}
-            backgroundStyle={styles.background}
+            enablePanDownToClose={enablePanDownToClose}
+            enableDynamicSizing={!supportScroll}
+            backgroundStyle={[styles.background, {backgroundColor: backgroundColor}]}
             handleIndicatorStyle={styles.handle}>
             {/*  */}
             {
@@ -109,7 +111,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         paddingHorizontal: 20,
-        paddingBottom: 20
+        paddingBottom: 20,
     },
 
     header: {
