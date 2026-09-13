@@ -1,4 +1,5 @@
 import { useSupabase } from "@/infrastructure/database/hooks/useSupabase";
+import { createOnboardingRepository } from "@/infrastructure/di";
 import { useUserStore } from "@/shared/store/useStore";
 import { useUser } from "@clerk/expo";
 import { router } from "expo-router";
@@ -6,71 +7,48 @@ import { useState } from "react";
 import { OnboardingFormValues } from "../schema/onboarding-schema";
 
 export const useOnboardingForm = () => {
-    const {user} = useUser();
-    const setCurrency = useUserStore(state=> state.setCurrency);
+    const { user } = useUser();
+    const setCurrency = useUserStore(state => state.setCurrency);
     const setNeedsOnBoarding = useUserStore(state => state.setNeedsOnboarding);
     const authSupabase = useSupabase();
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('')
+    const onboardingRepository = createOnboardingRepository(authSupabase);
 
     const onSubmit = async (values: OnboardingFormValues) => {
-        const parsed = parseFloat(values.startingBalance.replace(/,/g, ""));
+        if (!user) return;
         setSaving(true);
         setError('');
+        try {
+            const parsed = parseFloat(values.startingBalance.replace(/,/g, ""));
+            //update currency
+            await onboardingRepository.updateUserCurrency(user.id, values.currency.code)
 
-        const {error: updateError} = await authSupabase
-        .from('users')
-        .update({
-            currency: values.currency.code
-        })
-        .eq("clerk_id", user!.id)
-        if(updateError) {
+            //get default accouunt
+            const defaultAccount = await onboardingRepository.getDefaultAccount(user.id);
+            if (!defaultAccount) {
+                return;
+            }
+
+            //create transaction
+            await onboardingRepository.createTransaction({
+                userId: user.id,
+                accountId: defaultAccount.id,
+                amount: parsed,
+            })
+
+            //update balance to account
+            await onboardingRepository.updateAccountBalance(defaultAccount.id, defaultAccount.balance + parsed)
+
+            setCurrency(values.currency.code);
+            setNeedsOnBoarding(false);
+            router.replace("/(root)/(tabs)")
+
+
+        } catch (error) {
             setSaving(false);
             setError("Something went wrong");
-            return;
         }
-        const {data: defaultAccount, error: accountFetchError} = await authSupabase
-        .from('accounts')
-        .select("id,balance")
-        .eq("user_id", user!.id)
-        .eq("is_default", true)
-        .single();
-        if(accountFetchError || !defaultAccount) {
-            setSaving(false);
-            setError("Something went wrong");
-            return;
-        }
-
-        const  {error: txError} = await authSupabase
-        .from('transactions')
-        .insert({
-            user_id: user!.id,
-            account_id: defaultAccount.id,
-            type: 'INCOME',
-            amount: parsed,
-            category: 'other_income',
-            description: "starting balance",
-            date: new Date().toISOString(),
-            input_method: 'MANUAL'
-        });
-        if(txError) {
-            setSaving(false);
-            setError("Something went wrong");
-            return;
-        }
-
-        const {error: balanceError} = await authSupabase
-        .from('accounts')
-        .update({balance: defaultAccount.balance + parsed})
-        .eq("id", defaultAccount!.id);
-        setSaving(false);
-        if(balanceError) {
-            setError("Something went wrong");
-            return;
-        }
-        setCurrency(values.currency.code);
-        setNeedsOnBoarding(false);
-        router.replace("/(root)/(tabs)")
     }
     return {
         onSubmit

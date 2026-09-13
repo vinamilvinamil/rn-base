@@ -89,7 +89,7 @@ export default function OnboardingForm({
                 
                 <View className='mt-2 my-4'>
                     <Button
-                        title='Sign Up'
+                        title='Continues'
                         disabled={loading}
                         fullWidth
                         className='bg-brand-blue'

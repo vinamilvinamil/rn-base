@@ -4,7 +4,7 @@ import { useSignInForm } from '../hooks/useSignInForm';
 import { CodeFormValues, SignInFormValues } from '../schema/signin-schema';
 
 export default function SignInScreen() {
-    const { onSubmit, onLoginBiometric, onVerifyPress, requestNewCode, showVerifyUI, isSignined, errors, hasCredentials, biometricType } = useSignInForm();
+    const { onSubmit, onLoginBiometric, onVerifyPress, requestNewCode, showVerifyUI, isSignined, authError, hasCredentials, biometricType } = useSignInForm();
 
     const handleSubmit = async (values: SignInFormValues) => {
         const result = await onSubmit(values);
@@ -32,6 +32,7 @@ export default function SignInScreen() {
         <SignInForm onSubmit={handleSubmit}
             biometricType={biometricType}
             hasCredentials={hasCredentials}
+            authError={authError}
             onBiometricLogin={onLoginBiometric}
         />
     )

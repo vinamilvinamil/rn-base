@@ -13,6 +13,7 @@ export interface SignInFormProps {
     error?: String;
     biometricType?: 'fingerprint' | 'face-recognition' | null;
     hasCredentials: boolean;
+    authError: string;
     onSubmit: (values: SignInFormValues) => void;
     onBiometricLogin: () => void;
 }
@@ -21,6 +22,7 @@ export default function SignInForm({
     error,
     biometricType,
     hasCredentials,
+    authError,
     onSubmit,
     onBiometricLogin
 }: SignInFormProps) {
@@ -100,6 +102,13 @@ export default function SignInForm({
                         />
                     )}
                 />
+
+                {
+                    authError &&
+                    <Text className='text-[#EF4444] text-sm self-center mb-4'>
+                        {authError}
+                    </Text>
+                }
 
                 <View className='mt-2 my-4'>
                     <Button

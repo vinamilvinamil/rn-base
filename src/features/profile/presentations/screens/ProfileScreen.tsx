@@ -1,5 +1,4 @@
 import { Button } from '@/shared/components/Button';
-import { useLocalCredentials } from '@clerk/expo/local-credentials';
 import { router } from 'expo-router';
 import { Alert, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -7,8 +6,6 @@ import { useProfile } from '../hooks/useProfile';
 
 export default function ProfileScreen() {
     const { user, signOut } = useProfile();
-    const {hasCredentials, biometricType} = useLocalCredentials()
-    console.log('yyyyy', hasCredentials, biometricType)
     const handleSignOut = () => {
         Alert.alert("Sign Out", "Are you sure you want to sign out?", [
             { text: 'Cancel', style: 'cancel' },

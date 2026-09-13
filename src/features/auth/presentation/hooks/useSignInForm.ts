@@ -10,6 +10,7 @@ export const useSignInForm = () => {
     const { isSignedIn } = useAuth();
     const { hasCredentials, setCredentials, biometricType, authenticate } = useLocalCredentials();
     const [showVerifyUI, setShowVerifyUI] = useState(false);
+    const [authError, setAuthError] = useState('');
     const isSignined = signIn.status === 'complete' || isSignedIn
 
     const onSubmit = async (values: SignInFormValues) => {
@@ -20,6 +21,7 @@ export const useSignInForm = () => {
 
         if (error) {
             console.log(JSON.stringify(error, null, 2));
+            setAuthError(error.message);
             return error.message;
         }
         if (signIn.status === 'complete') {
@@ -43,6 +45,7 @@ export const useSignInForm = () => {
 
             if (error) {
                 console.error('Prepare client trust error:', error);
+                setAuthError(error.message);
                 return error.message;
             }
             setShowVerifyUI(true);
@@ -107,6 +110,7 @@ export const useSignInForm = () => {
         biometricType,
         isSignined,
         errors,
+        authError,
         fetchStatus
     }
 }
