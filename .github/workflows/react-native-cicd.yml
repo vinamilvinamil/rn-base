@@ -80,16 +80,17 @@ jobs:
       # --------------------------------------------------------
       - name: 🌱 Create .env
         run: |
-          # 1. Chuyển object JSON vars từ GitHub thành định dạng KEY=VALUE và lưu vào .env
-          echo '${{ toJSON(vars) }}' | jq -r 'to_entries | .[] | "\(.key)=\(.value)"' > .env
-          
-          # 2. Lọc lại các biến theo chuẩn Expo của bạn (nếu muốn)
-          # Lệnh này giữ lại các dòng chứa APP_ENV hoặc EXPO_PUBLIC_
-          grep -E '^(APP_ENV|EXPO_PUBLIC_)' .env > .env.filtered && mv .env.filtered .env
+          echo '${{ toJSON(vars) }}' \
+            | jq -r 'to_entries | .[] | "\(.key)=\(.value)"' \
+            > .env
 
-          # 3. Kiểm tra kết quả trong log
-          echo "========== GENERATED .env CONTENT =========="
-          cat .env
+          # Chỉ giữ env dùng cho Expo
+          grep -E '^(APP_ENV|EXPO_PUBLIC_)' .env > .env.filtered
+          mv .env.filtered .env
+
+          echo "========== ENV CHECK =========="
+          wc -l .env
+          grep -E '^(APP_ENV|EXPO_PUBLIC_)' .env | sed 's/=.*/=***SET***/'
 
       # --------------------------------------------------------
       # Restore Android Keystore
@@ -149,6 +150,16 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
+          # Load toàn bộ .env vào process.env
+          set -a
+          source .env
+          set +a
+
+          echo "========== PROCESS ENV CHECK =========="
+          echo "APP_ENV=$APP_ENV"
+          echo "EXPO_PUBLIC_SUPABASE_URL=$EXPO_PUBLIC_SUPABASE_URL"
+          echo "EXPO_PUBLIC_SUPABASE_KEY=${EXPO_PUBLIC_SUPABASE_KEY:+***SET***}"
+
           export NODE_OPTIONS="--openssl-legacy-provider --max_old_space_size=4096"
 
           eas build \
