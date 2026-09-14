@@ -414,6 +414,9 @@ jobs:
 
           echo "Generated Expo environment variables:"
           cut -d '=' -f1 .env
+          echo ""
+          echo "========== .env CONTENT =========="
+          cat .env
 
       # --------------------------------------------------------
       # Restore Android Keystore
