@@ -80,13 +80,16 @@ jobs:
       # --------------------------------------------------------
       - name: 🌱 Create .env
         run: |
-          printenv \
-            | grep -E '^(APP_ENV|EXPO_PUBLIC_)' \
-            | sort \
-            > .env
+          # 1. Chuyển object JSON vars từ GitHub thành định dạng KEY=VALUE và lưu vào .env
+          echo '${{ toJSON(vars) }}' | jq -r 'to_entries | .[] | "\(.key)=\(.value)"' > .env
+          
+          # 2. Lọc lại các biến theo chuẩn Expo của bạn (nếu muốn)
+          # Lệnh này giữ lại các dòng chứa APP_ENV hoặc EXPO_PUBLIC_
+          grep -E '^(APP_ENV|EXPO_PUBLIC_)' .env > .env.filtered && mv .env.filtered .env
 
-          echo "Generated Expo environment variables:"
-          cut -d '=' -f1 .env
+          # 3. Kiểm tra kết quả trong log
+          echo "========== GENERATED .env CONTENT =========="
+          cat .env
 
       # --------------------------------------------------------
       # Restore Android Keystore
