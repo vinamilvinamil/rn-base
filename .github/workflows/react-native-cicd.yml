@@ -122,7 +122,26 @@ jobs:
             }
           }
           EOF
+      - name: 🧪 Test Expo public env
+        run: |
+          node -e "
+            const fs = require('fs');
 
+            console.log('========== FILE CHECK ==========');
+            console.log('env exists:', fs.existsSync('.env'));
+
+            console.log('========== ENV FILE ==========');
+            console.log(fs.readFileSync('.env', 'utf8'));
+          "
+
+          echo "========== EXPO CONFIG =========="
+          npx expo config --type public
+      - name: 🧪 Verify Expo env injection
+        run: |
+          node -e "
+            console.log('SUPABASE_URL:', process.env.EXPO_PUBLIC_SUPABASE_URL);
+            console.log('SUPABASE_KEY:', process.env.EXPO_PUBLIC_SUPABASE_KEY ? '***SET***' : 'MISSING');
+          "
       # --------------------------------------------------------
       # Build APK
       # --------------------------------------------------------
