@@ -1,7 +1,7 @@
-import { View } from 'react-native'
+import TransactionScreen from '@/features/transactions/presentation/screens/TransactionScreen'
 
 export default function Transactions() {
   return (
-    <View></View>
+    <TransactionScreen/>
   )
 }

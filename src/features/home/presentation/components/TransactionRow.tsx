@@ -68,6 +68,11 @@ export default function TransactionRow({
             </Text>
         </View>
     )
+    if(!onDelete) {
+        return (<View>
+            {row}
+        </View>)
+    }
     return (
         <View className='mb-2.5'>
             <Swipeable

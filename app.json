@@ -56,7 +56,8 @@
         {
           "faceIDPermission": "Ứng dụng sử dụng Face ID để đăng nhập nhanh và an toàn."
         }
-      ]
+      ],
+      "expo-sharing"
     ],
     "experiments": {
       "typedRoutes": true,
