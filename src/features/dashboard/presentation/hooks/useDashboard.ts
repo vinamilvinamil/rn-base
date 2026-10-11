@@ -1,0 +1,3 @@
+import { useCallback, useEffect, useState } from 'react'; import { DashboardRepositoryImpl } from '../../data/repositories/DashboardRepositoryImpl';
+const repository = new DashboardRepositoryImpl();
+export function useDashboard() { const [summary, setSummary] = useState({ completedBreaks: 0, skippedBreaks: 0, longestSessionMinutes: 0, streakDays: 0, nextBreakMinutes: 20 }); const refresh = useCallback(async () => { try { setSummary(await repository.getSummary()); } catch { /* Keep a safe empty dashboard if DB is unavailable. */ } }, []); useEffect(() => { refresh(); }, [refresh]); return { summary, refresh }; }

@@ -1,0 +1,2 @@
+import { useState } from 'react'; import { CompleteExercise } from '../../domain/use-cases/CompleteExercise';
+export function useExerciseSession(exerciseId: string, steps: string[]) { const [stepIndex, setStepIndex] = useState(0); const next = () => setStepIndex(i => Math.min(steps.length - 1, i + 1)); const previous = () => setStepIndex(i => Math.max(0, i - 1)); const complete = async (duration: number) => new CompleteExercise().execute(exerciseId, duration); return { stepIndex, next, previous, complete, isLast: stepIndex >= steps.length - 1 }; }

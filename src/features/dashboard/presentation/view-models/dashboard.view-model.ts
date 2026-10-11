@@ -1,0 +1,1 @@
+import type { DashboardSummary } from '../../domain/entities/DashboardSummary'; export function dashboardViewModel(summary: DashboardSummary) { return { ...summary, breaksLabel: `${summary.completedBreaks}/8`, nextBreakLabel: `${summary.nextBreakMinutes} phút nữa` }; }

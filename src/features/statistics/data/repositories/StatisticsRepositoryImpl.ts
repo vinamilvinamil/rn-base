@@ -1,0 +1,1 @@
+import type { StatisticsRepository } from '../../domain/repositories/StatisticsRepository'; import { StatisticsLocalDataSource } from '../datasources/StatisticsLocalDataSource'; export class StatisticsRepositoryImpl implements StatisticsRepository { constructor(private source = new StatisticsLocalDataSource()) {} getSummary() { return this.source.getSummary(); } }

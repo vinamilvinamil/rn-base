@@ -1,0 +1,1 @@
+import type { OverlayRepository } from '../repositories/OverlayRepository'; export class GetOverlayStatus { constructor(private repo: OverlayRepository) {} execute() { return this.repo.getStatus(); } }

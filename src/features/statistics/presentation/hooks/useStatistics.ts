@@ -1,0 +1,2 @@
+import { useEffect, useState } from 'react'; import { StatisticsRepositoryImpl } from '../../data/repositories/StatisticsRepositoryImpl'; const repo = new StatisticsRepositoryImpl();
+export function useStatistics() { const [summary, setSummary] = useState({ completedBreaks: 0, skippedBreaks: 0, exerciseCount: 0, completedMinutes: 0 }); useEffect(() => { repo.getSummary().then(setSummary).catch(() => {}); }, []); return summary; }

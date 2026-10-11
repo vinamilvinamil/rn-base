@@ -1,0 +1,1 @@
+import type { BubbleConfig } from '../entities/BubbleConfig'; import type { OverlayStatus } from '../entities/OverlayStatus'; export interface OverlayRepository { getStatus(): Promise<OverlayStatus>; start(config: BubbleConfig): Promise<void>; update(config: BubbleConfig): Promise<void>; stop(): Promise<void> }

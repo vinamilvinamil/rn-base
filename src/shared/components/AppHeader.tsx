@@ -1,0 +1,3 @@
+import { View, Pressable, StyleSheet } from 'react-native'; import { useRouter } from 'expo-router'; import { Ionicons } from '@expo/vector-icons'; import { AppText } from './AppText'; import { colors } from '@/src/shared/theme/colors';
+export function AppHeader({ title, back = true }: { title: string; back?: boolean }) { const router = useRouter(); return <View style={styles.row}>{back ? <Pressable onPress={() => router.back()}><Ionicons name="chevron-back" size={24} color={colors.text} /></Pressable> : <View style={{ width: 24 }} />}<AppText variant="heading" style={{ flex: 1 }}>{title}</AppText><View style={{ width: 24 }} /></View>; }
+const styles = StyleSheet.create({ row: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 4 } });

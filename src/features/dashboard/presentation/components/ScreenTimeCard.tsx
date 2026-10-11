@@ -1,0 +1,2 @@
+import { AppCard } from '@/src/shared/components/AppCard'; import { AppText } from '@/src/shared/components/AppText';
+export function ScreenTimeCard() { return <AppCard><AppText variant="caption">Thời gian màn hình</AppText><AppText variant="title">Chưa có dữ liệu</AppText><AppText>Android không cung cấp số liệu tổng hợp nếu chưa tích hợp quyền/API theo dõi sử dụng. EyeCare không tự suy đoán thời gian.</AppText></AppCard>; }

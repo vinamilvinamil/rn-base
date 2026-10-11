@@ -1,0 +1,1 @@
+import type { StatisticsSummary } from '../../domain/entities/StatisticsSummary'; export function statisticsViewModel(s: StatisticsSummary) { return { ...s, completionRate: s.completedBreaks + s.skippedBreaks === 0 ? 0 : s.completedBreaks / (s.completedBreaks + s.skippedBreaks) }; }

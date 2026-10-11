@@ -1,0 +1,2 @@
+import { AppCard } from '@/src/shared/components/AppCard'; import { AppText } from '@/src/shared/components/AppText'; import { AppButton } from '@/src/shared/components/AppButton';
+export function NextBreakCard({ label, onStart }: { label: string; onStart: () => void }) { return <AppCard style={{ backgroundColor: '#E1F6F0', borderColor: '#D2EEE6' }}><AppText variant="caption">Lần nghỉ tiếp theo</AppText><AppText variant="title">{label}</AppText><AppText>Nhìn ra xa và thư giãn trong 20 giây.</AppText><AppButton title="Bắt đầu nghỉ ngay" onPress={onStart} /></AppCard>; }

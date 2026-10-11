@@ -1,0 +1,1 @@
+import { getDatabase } from '@/src/infrastructure/database/database'; export class ExerciseLocalDataSource { async getCompletedCount() { const db = await getDatabase(); const row = await db.getFirstAsync<{ total: number }>('SELECT COUNT(*) AS total FROM exercise_sessions WHERE status = ?', 'completed'); return row?.total ?? 0; } }

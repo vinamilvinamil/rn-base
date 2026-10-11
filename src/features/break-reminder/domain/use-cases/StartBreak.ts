@@ -1,0 +1,2 @@
+import type { BreakSessionRepository } from '../repositories/BreakSessionRepository'; import type { BreakSession } from '../entities/BreakSession'; import { createId } from '@/src/shared/utils/id';
+export class StartBreak { constructor(private repo: BreakSessionRepository) {} async execute(durationSeconds: number, ruleId?: string) { const session: BreakSession = { id: createId('break'), ruleId, startedAt: new Date().toISOString(), durationSeconds, status: 'interrupted' }; await this.repo.save(session); return session; } }

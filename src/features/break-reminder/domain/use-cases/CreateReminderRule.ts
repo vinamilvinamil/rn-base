@@ -1,0 +1,2 @@
+import type { ReminderRepository } from '../repositories/ReminderRepository'; import type { ReminderRule, ReminderType } from '../entities/ReminderRule'; import { createId } from '@/src/shared/utils/id';
+export class CreateReminderRule { constructor(private repo: ReminderRepository) {} async execute(input: { type: ReminderType; intervalMinutes: number; durationSeconds: number }) { const now = new Date().toISOString(); const rule: ReminderRule = { id: createId('rule'), ...input, enabled: true, createdAt: now, updatedAt: now }; await this.repo.save(rule); return rule; } }

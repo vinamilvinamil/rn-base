@@ -1,0 +1,3 @@
+import type { ReminderRule } from '../../domain/entities/ReminderRule'; import type { ReminderRuleDto } from '../dto/ReminderRuleDto';
+export const reminderFromDto = (d: ReminderRuleDto): ReminderRule => ({ id: d.id, type: d.type as ReminderRule['type'], intervalMinutes: d.interval_minutes, durationSeconds: d.duration_seconds, enabled: d.enabled === 1, createdAt: d.created_at, updatedAt: d.updated_at });
+export const reminderToDto = (r: ReminderRule): ReminderRuleDto => ({ id: r.id, type: r.type, interval_minutes: r.intervalMinutes, duration_seconds: r.durationSeconds, enabled: r.enabled ? 1 : 0, created_at: r.createdAt, updated_at: r.updatedAt });

@@ -46,3 +46,4 @@ credentials.json
 *.jks
 .env
 supabase/*
+modules/eye-care-overlay/android/build/*

@@ -1,0 +1,1 @@
+import type { DashboardRepository } from '../repositories/DashboardRepository'; export class GetDashboardSummary { constructor(private repo: DashboardRepository) {} execute() { return this.repo.getSummary(); } }

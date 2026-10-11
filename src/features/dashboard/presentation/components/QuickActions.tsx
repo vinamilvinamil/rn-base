@@ -1,0 +1,2 @@
+import { View } from 'react-native'; import { AppButton } from '@/src/shared/components/AppButton'; import { useRouter } from 'expo-router';
+export function QuickActions() { const router = useRouter(); return <View style={{ flexDirection: 'row', gap: 10 }}><View style={{ flex: 1 }}><AppButton title="Bài tập mắt" variant="secondary" onPress={() => router.push('/(tabs)/exercises')} /></View><View style={{ flex: 1 }}><AppButton title="Lịch nhắc" variant="secondary" onPress={() => router.push('/reminders')} /></View></View>; }

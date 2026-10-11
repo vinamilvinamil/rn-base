@@ -1,0 +1,11 @@
+export const SCHEMA_VERSION = 1;
+export const CREATE_TABLES_SQL = `
+CREATE TABLE IF NOT EXISTS reminder_rules (id TEXT PRIMARY KEY NOT NULL, type TEXT NOT NULL, interval_minutes INTEGER NOT NULL, duration_seconds INTEGER NOT NULL, enabled INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS break_sessions (id TEXT PRIMARY KEY NOT NULL, rule_id TEXT, started_at TEXT NOT NULL, completed_at TEXT, duration_seconds INTEGER NOT NULL, status TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS break_events (id TEXT PRIMARY KEY NOT NULL, session_id TEXT, event_type TEXT NOT NULL, created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS exercise_sessions (id TEXT PRIMARY KEY NOT NULL, exercise_id TEXT NOT NULL, started_at TEXT NOT NULL, completed_at TEXT, duration_seconds INTEGER NOT NULL, status TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS goals (id TEXT PRIMARY KEY NOT NULL, type TEXT NOT NULL, target INTEGER NOT NULL, period TEXT NOT NULL, enabled INTEGER NOT NULL DEFAULT 1);
+CREATE TABLE IF NOT EXISTS achievements (id TEXT PRIMARY KEY NOT NULL, unlocked_at TEXT);
+CREATE TABLE IF NOT EXISTS app_settings (key TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS daily_summaries (day TEXT PRIMARY KEY NOT NULL, completed_breaks INTEGER NOT NULL DEFAULT 0, skipped_breaks INTEGER NOT NULL DEFAULT 0, exercise_minutes INTEGER NOT NULL DEFAULT 0);
+`;

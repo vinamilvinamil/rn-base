@@ -1,0 +1,1 @@
+import type { OverlayRepository } from '../repositories/OverlayRepository'; import type { BubbleConfig } from '../entities/BubbleConfig'; export class UpdateBubbleConfig { constructor(private repo: OverlayRepository) {} execute(config: BubbleConfig) { return this.repo.update(config); } }

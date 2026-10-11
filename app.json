@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "my-app",
-    "slug": "my-app",
+    "name": "eye-care",
+    "slug": "eye-care",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -9,7 +9,7 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.anonymous.myapp",
+      "bundleIdentifier": "com.eyecare.app",
       "infoPlist": {
         "NSFaceIDUsageDescription": "Ứng dụng sử dụng Face ID để đăng nhập nhanh và an toàn.",
         "ITSAppUsesNonExemptEncryption": false
@@ -27,7 +27,7 @@
         "android.permission.USE_BIOMETRIC",
         "android.permission.USE_FINGERPRINT"
       ],
-      "package": "com.anonymous.myapp"
+      "package": "com.eyecare.app"
     },
     "web": {
       "output": "static",
@@ -50,14 +50,15 @@
         }
       ],
       "@react-native-community/datetimepicker",
-      "@clerk/expo",
       [
         "expo-local-authentication",
         {
           "faceIDPermission": "Ứng dụng sử dụng Face ID để đăng nhập nhanh và an toàn."
         }
       ],
-      "expo-sharing"
+      "expo-sharing",
+      "expo-notifications",
+      "expo-sqlite"
     ],
     "experiments": {
       "typedRoutes": true,

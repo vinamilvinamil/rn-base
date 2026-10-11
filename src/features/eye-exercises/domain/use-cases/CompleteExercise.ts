@@ -1,0 +1,2 @@
+import { createId } from '@/src/shared/utils/id'; import { getDatabase } from '@/src/infrastructure/database/database';
+export class CompleteExercise { async execute(exerciseId: string, durationSeconds: number) { const db = await getDatabase(); await db.runAsync('INSERT INTO exercise_sessions (id,exercise_id,started_at,completed_at,duration_seconds,status) VALUES (?,?,?,?,?,?)', createId('exercise'), exerciseId, new Date(Date.now()-durationSeconds*1000).toISOString(), new Date().toISOString(), durationSeconds, 'completed'); } }

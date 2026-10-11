@@ -1,0 +1,1 @@
+import { AppCard } from '@/src/shared/components/AppCard'; import { AppText } from '@/src/shared/components/AppText'; export function LongestSessionCard() { return <AppCard><AppText variant="heading">Thời gian dùng liên tục dài nhất</AppText><AppText>Chưa có dữ liệu theo dõi app sử dụng.</AppText></AppCard>; }

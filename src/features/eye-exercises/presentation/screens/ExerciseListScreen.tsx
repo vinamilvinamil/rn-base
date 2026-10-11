@@ -1,0 +1,3 @@
+import { useRouter } from 'expo-router'; import { Screen } from '@/src/shared/components/Screen'; import { AppHeader } from '@/src/shared/components/AppHeader'; import { AppText } from '@/src/shared/components/AppText'; import { ExerciseCard } from '../components/ExerciseCard'; import { ExerciseRepositoryImpl } from '../../data/repositories/ExerciseRepositoryImpl';
+const repo = new ExerciseRepositoryImpl();
+export function ExerciseListScreen() { const router = useRouter(); return <Screen><AppHeader title="Bài tập mắt" back={false} /><AppText>Chọn một bài tập ngắn để thư giãn.</AppText>{repo.getAll().map(exercise => <ExerciseCard key={exercise.id} exercise={exercise} onPress={() => router.push(`/exercises/${exercise.id}`)} />)}</Screen>; }

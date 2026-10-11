@@ -1,0 +1,1 @@
+import type { StatisticsRepository } from '../repositories/StatisticsRepository'; export class GetStatistics { constructor(private repo: StatisticsRepository) {} execute() { return this.repo.getSummary(); } }

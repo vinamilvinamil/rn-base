@@ -1,0 +1,1 @@
+import type { ExerciseRepository } from '../../domain/repositories/ExerciseRepository'; import { EXERCISES } from '../datasources/ExerciseCatalog'; export class ExerciseRepositoryImpl implements ExerciseRepository { getAll() { return EXERCISES; } getById(id: string) { return EXERCISES.find(e => e.id === id); } }

@@ -1,0 +1,1 @@
+export type AppSettings = { microBreakIntervalMinutes: number; microBreakDurationSeconds: number; longBreakIntervalMinutes: number; longBreakDurationMinutes: number; bubbleEnabled: boolean; notificationsEnabled: boolean; soundEnabled: boolean; hapticsEnabled: boolean; snoozeMinutes: number };

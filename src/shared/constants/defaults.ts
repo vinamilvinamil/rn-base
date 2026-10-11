@@ -1,0 +1,1 @@
+export const DEFAULT_SETTINGS = { microBreakIntervalMinutes: 20, microBreakDurationSeconds: 20, longBreakIntervalMinutes: 90, longBreakDurationMinutes: 5, bubbleEnabled: false, notificationsEnabled: true, soundEnabled: true, hapticsEnabled: true, snoozeMinutes: 5 } as const;
