@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "eye-care",
-    "slug": "eye-care",
+    "slug": "my-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -69,6 +69,7 @@
       "eas": {
         "projectId": "a6f1ae67-1413-455e-85cc-e7d1cbd65bb9"
       }
-    }
+    },
+    "owner": "datth3"
   }
 }
